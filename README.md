@@ -1,6 +1,16 @@
 # Farmspace
 
-Farmspace is a Flask-based agriculture web app for crop yield prediction, farm supply shopping, and weather planning. It uses a trained machine learning model to suggest the best crop for the current conditions, stores users in SQLite, and supports a simple cart and order history flow.
+[![Python](https://img.shields.io/badge/Python-3.14+-4B8BBE?logo=python&logoColor=white)](https://www.python.org/)
+[![UV](https://img.shields.io/badge/UV-Setup-111827?logo=python&logoColor=white)](https://docs.astral.sh/uv/)
+[![Flask](https://img.shields.io/badge/Flask-3.1-111827?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Pandas](https://img.shields.io/badge/Pandas-2.x-0C7BDC?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![NumPy](https://img.shields.io/badge/NumPy-2.x-4DABF7?logo=numpy&logoColor=white)](https://numpy.org/)
+[![scikit--learn](https://img.shields.io/badge/scikit--learn-1.x-FBBF24?logo=scikitlearn&logoColor=111827)](https://scikit-learn.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-DB-0F766E?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Joblib](https://img.shields.io/badge/Joblib-Model-8B5CF6?logo=python&logoColor=white)](https://joblib.readthedocs.io/)
+[![MIT License](https://img.shields.io/badge/License-MIT-EC4899?logo=open-source-initiative&logoColor=white)](LICENSE)
+
+Farmspace is a Flask-based agriculture platform for crop yield prediction, farm supply shopping, and weather planning. It uses a trained machine learning model to recommend the best crop for the current conditions, stores users in SQLite, and supports a cart, checkout, and order history flow.
 
 ## Features
 
@@ -13,16 +23,6 @@ Farmspace is a Flask-based agriculture web app for crop yield prediction, farm s
 - Persistent checkout with order history and order details
 - SQLite database for users, products, orders, and order items
 
-## Tech Stack
-
-- Python 3.14+
-- Flask
-- SQLite
-- Pandas
-- NumPy
-- scikit-learn
-- Joblib
-
 ## Project Structure
 
 - `model.py` - ML training and prediction logic
@@ -32,66 +32,32 @@ Farmspace is a Flask-based agriculture web app for crop yield prediction, farm s
 - `static/` - CSS and product images
 - `templates/` - HTML templates
 
-## Setup
+## Quick Start
 
 1. Install dependencies:
 
-	```bash
-	uv sync
-	```
+   ```bash
+   uv sync
+   ```
 
 2. Train the model and create the artifact:
 
-	```bash
-	uv run python main.py
-	```
+   ```bash
+   uv run python main.py
+   ```
 
 3. Run the Flask app:
 
-	```bash
-	uv run python main.py
-	```
+   ```bash
+   uv run python main.py
+   ```
 
 4. Open the app in your browser:
 
-	```
-	http://127.0.0.1:5000
-	```
-
-## Main Pages
-
-- `/` - Home page
-- `/register` - User registration
-- `/login` - Login page
-- `/predict` - Crop recommendation page
-- `/weather-report` - Weekly weather report page
-- `/shop` - Product shop
-- `/cart` - Shopping cart
-- `/orders` - Order history
-
-## How the Model Works
-
-The model is trained on the crop yield dataset using a Random Forest Regressor. It accepts:
-
-- Temperature
-- Rainfall
-- Humidity
-- Soil type
-- Weather condition
-
-It then evaluates the supported crops and recommends the one with the highest predicted yield.
-
-## Data Sources
-
-- Weather data is fetched from Open-Meteo
-- Soil classification is fetched from SoilGrids
-
-## Notes
-
-- The app stores generated data locally in `farmspace.db` and `artifacts/`.
-- These files are ignored by Git so the repository stays clean.
-- If location access is blocked in the browser, weather and soil can still be entered manually.
+   ```
+   http://127.0.0.1:5000
+   ```
 
 ## License
 
-This project is intended for educational use and college-level demo work.
+This project is licensed under the [MIT License](LICENSE).
