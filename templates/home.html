@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Farmspace | Home{% endblock %}
+{% block content %}
+<section class="hero-card p-4 p-lg-5 mb-4 mb-lg-5 text-white">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <span class="eyebrow">Crop yield intelligence</span>
+      <h1 class="display-5 fw-bold mt-3">Forecast harvest output and manage farm inputs in one place.</h1>
+      <p class="lead mt-3 text-white-75">Farmspace combines a trained regression model, secure user login, and a simple shop for pesticides and fertilizers.</p>
+      <div class="d-flex gap-2 flex-wrap mt-4">
+        <a class="btn btn-light btn-lg" href="{{ url_for('predict') }}">Predict yield</a>
+        <a class="btn btn-outline-light btn-lg" href="{{ url_for('shop') }}">Browse shop</a>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="stats-panel">
+        <div>
+          <div class="stats-value">ML</div>
+          <div class="stats-label">Random Forest regression</div>
+        </div>
+        <div>
+          <div class="stats-value">Auth</div>
+          <div class="stats-label">SQLite + hashed passwords</div>
+        </div>
+        <div>
+          <div class="stats-value">Shop</div>
+          <div class="stats-label">Cart and checkout simulation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h3 class="h5 fw-bold">Yield prediction</h3>
+      <p class="mb-0">Enter temperature, rainfall, humidity, soil, weather, and crop type to get a forecast.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h3 class="h5 fw-bold">Protected access</h3>
+      <p class="mb-0">Prediction and cart pages require login. Sessions keep the user signed in securely.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h3 class="h5 fw-bold">Farm products</h3>
+      <p class="mb-0">View pesticides and fertilizers, add items to cart, and simulate checkout.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

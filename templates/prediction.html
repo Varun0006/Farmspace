@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Farmspace | Prediction{% endblock %}
+{% block content %}
+<div class="row g-4 align-items-start">
+  <div class="col-lg-7">
+    <div class="panel-card">
+      <h1 class="h3 fw-bold mb-3">Crop yield prediction</h1>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <button class="btn btn-outline-light btn-sm" id="autofill-weather-btn" type="button">Use my location weather</button>
+        <span class="small text-white-75" id="weather-status">Allow location access to auto-fill current weather.</span>
+      </div>
+      <form method="post" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="temperature">Temperature (°C)</label>
+          <input class="form-control" id="temperature" name="temperature" type="number" step="0.01" value="{{ form_data.temperature }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="rainfall">Rainfall (mm)</label>
+          <input class="form-control" id="rainfall" name="rainfall" type="number" step="0.01" value="{{ form_data.rainfall }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="humidity">Humidity (%)</label>
+          <input class="form-control" id="humidity" name="humidity" type="number" step="0.01" value="{{ form_data.humidity }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="soil_type">Soil type</label>
+          <select class="form-select" id="soil_type" name="soil_type">
+            {% for soil in soil_types %}
+            <option value="{{ soil }}" {% if soil == form_data.soil_type %}selected{% endif %}>{{ soil }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="weather_condition">Weather condition</label>
+          <select class="form-select" id="weather_condition" name="weather_condition">
+            {% for weather in weather_conditions %}
+            <option value="{{ weather }}" {% if weather == form_data.weather_condition %}selected{% endif %}>{{ weather }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary btn-lg" type="submit">Suggest best crop</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="result-card h-100 d-flex flex-column justify-content-center">
+      <span class="eyebrow">Best recommendation</span>
+      {% if recommendation %}
+      <div class="h3 fw-bold mt-3 mb-1">{{ recommendation.best_crop }}</div>
+      <div class="display-6 fw-bold">{{ '%.2f'|format(recommendation.best_yield) }}</div>
+      <p class="lead mb-0">tons/hectare (predicted)</p>
+      {% else %}
+      <h2 class="h4 fw-bold mt-3">The top crop suggestion will appear here.</h2>
+      <p class="mb-0 text-white-75">Submit field conditions and the model will choose the highest-yield crop.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if crop_ranking %}
+<div class="panel-card mt-4">
+  <h2 class="h4 fw-bold mb-3">Predicted yield by crop</h2>
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Crop</th>
+          <th scope="col">Predicted Yield (tons/hectare)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in crop_ranking %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ row.crop }}</td>
+          <td>{{ '%.2f'|format(row.predicted_yield) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  (() => {
+    const button = document.getElementById("autofill-weather-btn");
+    const statusEl = document.getElementById("weather-status");
+    const temperatureInput = document.getElementById("temperature");
+    const rainfallInput = document.getElementById("rainfall");
+    const humidityInput = document.getElementById("humidity");
+    const weatherSelect = document.getElementById("weather_condition");
+    const soilSelect = document.getElementById("soil_type");
+
+    if (!button || !statusEl) {
+      return;
+    }
+
+    const setStatus = (message) => {
+      statusEl.textContent = message;
+    };
+
+    const fillWeatherFromCoords = async (latitude, longitude) => {
+      setStatus("Fetching live weather for your location...");
+      const response = await fetch(`/api/weather/current?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`);
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to fetch weather data.");
+      }
+
+      temperatureInput.value = Number(payload.temperature).toFixed(2);
+      rainfallInput.value = Number(payload.rainfall).toFixed(2);
+      humidityInput.value = Number(payload.humidity).toFixed(2);
+      if (payload.weather_condition && weatherSelect.querySelector(`option[value='${payload.weather_condition}']`)) {
+        weatherSelect.value = payload.weather_condition;
+      }
+      if (payload.soil_type && soilSelect.querySelector(`option[value='${payload.soil_type}']`)) {
+        soilSelect.value = payload.soil_type;
+      }
+      if (payload.soil_wrb_class && payload.soil_wrb_class !== "Unknown") {
+        setStatus(`Weather and soil auto-filled. Detected soil class: ${payload.soil_wrb_class}.`);
+      } else {
+        setStatus("Weather and soil auto-filled from your current location.");
+      }
+    };
+
+    const requestLocationWeather = () => {
+      if (!navigator.geolocation) {
+        setStatus("Geolocation is not supported by this browser.");
+        return;
+      }
+
+      setStatus("Requesting your location permission...");
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            await fillWeatherFromCoords(position.coords.latitude, position.coords.longitude);
+          } catch (error) {
+            setStatus(error.message || "Could not fetch weather for your location.");
+          }
+        },
+        () => {
+          setStatus("Location access was denied. You can still enter values manually.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 600000,
+        }
+      );
+    };
+
+    button.addEventListener("click", requestLocationWeather);
+
+    if (!temperatureInput.value && !rainfallInput.value && !humidityInput.value) {
+      requestLocationWeather();
+    }
+  })();
+</script>
+{% endblock %}

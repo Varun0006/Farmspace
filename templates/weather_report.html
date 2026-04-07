@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Farmspace | Weather Report{% endblock %}
+{% block content %}
+<div class="row g-4 align-items-start">
+  <div class="col-lg-4">
+    <div class="panel-card h-100">
+      <span class="eyebrow">Weekly forecast</span>
+      <h1 class="h3 fw-bold mt-3 mb-2">7-day weather report</h1>
+      <p class="text-white-75 mb-4">Use your current location to fetch a week-long weather report for planning field work, spraying, and irrigation.</p>
+
+      <button class="btn btn-warning w-100 mb-3" id="use-location-btn" type="button">Use my location</button>
+      <div class="small text-white-75" id="report-status">Allow location access to load the weekly weather report.</div>
+
+      <div class="mt-4 p-3 rounded-4" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+        <div class="small text-white-75">Best use</div>
+        <div class="fw-bold">Check rainfall and temperature before irrigation or spraying.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="panel-card">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <h2 class="h4 fw-bold mb-0">7-day outlook</h2>
+        <span class="badge rounded-pill text-bg-light text-dark" id="fetched-at-badge">Not loaded yet</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-dark table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              <th scope="col">Date</th>
+              <th scope="col">Condition</th>
+              <th scope="col">Max</th>
+              <th scope="col">Min</th>
+              <th scope="col">Rainfall</th>
+            </tr>
+          </thead>
+          <tbody id="forecast-body">
+            <tr>
+              <td colspan="6" class="text-center text-white-75 py-4">No weather data loaded yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const button = document.getElementById("use-location-btn");
+    const statusEl = document.getElementById("report-status");
+    const bodyEl = document.getElementById("forecast-body");
+    const fetchedAtBadge = document.getElementById("fetched-at-badge");
+
+    const setStatus = (message) => {
+      statusEl.textContent = message;
+    };
+
+    const renderForecast = (forecast, fetchedAt) => {
+      bodyEl.innerHTML = "";
+
+      if (!forecast || !forecast.length) {
+        bodyEl.innerHTML = '<tr><td colspan="6" class="text-center text-white-75 py-4">No forecast data available.</td></tr>';
+        fetchedAtBadge.textContent = "No data";
+        return;
+      }
+
+      for (const item of forecast) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.day}</td>
+          <td>${item.date}</td>
+          <td>${item.weather_condition}</td>
+          <td>${Number(item.max_temp).toFixed(1)}°C</td>
+          <td>${Number(item.min_temp).toFixed(1)}°C</td>
+          <td>${Number(item.rainfall).toFixed(1)} mm</td>
+        `;
+        bodyEl.appendChild(row);
+      }
+
+      fetchedAtBadge.textContent = fetchedAt ? `Updated ${new Date(fetchedAt).toLocaleString()}` : "Updated";
+    };
+
+    const loadWeeklyWeather = async (latitude, longitude) => {
+      setStatus("Fetching weekly weather report...");
+      const response = await fetch(`/api/weather/weekly?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`);
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to fetch weekly weather.");
+      }
+
+      renderForecast(payload.forecast, payload.fetched_at);
+      setStatus("Weekly weather report loaded from your current location.");
+    };
+
+    const requestLocationWeather = () => {
+      if (!navigator.geolocation) {
+        setStatus("Geolocation is not supported by this browser.");
+        return;
+      }
+
+      setStatus("Requesting your location permission...");
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            await loadWeeklyWeather(position.coords.latitude, position.coords.longitude);
+          } catch (error) {
+            setStatus(error.message || "Could not load weekly weather.");
+          }
+        },
+        () => {
+          setStatus("Location access was denied. You can still use the page after allowing location.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 600000,
+        }
+      );
+    };
+
+    button.addEventListener("click", requestLocationWeather);
+    requestLocationWeather();
+  })();
+</script>
+{% endblock %}

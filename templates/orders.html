@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Farmspace | Orders{% endblock %}
+{% block content %}
+<div class="panel-card">
+  <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <span class="eyebrow">Purchase history</span>
+      <h1 class="h3 fw-bold mt-2 mb-0">Your orders</h1>
+    </div>
+    <a class="btn btn-outline-light" href="{{ url_for('shop') }}">Continue shopping</a>
+  </div>
+
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Order ID</th>
+          <th scope="col">Placed At</th>
+          <th scope="col">Total</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.created_at }}</td>
+          <td>₹{{ '%.2f'|format(order.total_amount) }}</td>
+          <td>
+            <a class="btn btn-sm btn-primary" href="{{ url_for('order_detail', order_id=order.id) }}">View details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h2 class="h4 fw-bold">No orders yet.</h2>
+    <p class="mb-3 text-muted">Checkout from your cart to create your first order record.</p>
+    <a class="btn btn-primary" href="{{ url_for('shop') }}">Go to shop</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

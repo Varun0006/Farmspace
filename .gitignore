@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# App-generated files
+artifacts/
+farmspace.db
+*.sqlite3
+*.joblib
+
+# Local caches and editor settings
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.vscode/

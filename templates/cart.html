@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Farmspace | Cart{% endblock %}
+{% block content %}
+<div class="panel-card">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <span class="eyebrow">Checkout area</span>
+      <h1 class="h3 fw-bold mt-2 mb-0">Your cart</h1>
+    </div>
+    <div class="text-end">
+      <div class="text-muted small">Current total</div>
+      <div class="h3 fw-bold mb-0">₹{{ '%.2f'|format(total) }}</div>
+    </div>
+  </div>
+
+  {% if items %}
+    <div class="vstack gap-3">
+      {% for item in items %}
+      <div class="cart-row">
+        <img class="cart-thumb" src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.name }}">
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div>
+              <h2 class="h5 fw-bold mb-1">{{ item.name }}</h2>
+              <p class="text-muted mb-0">{{ item.category }} | Qty {{ item.quantity }}</p>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold">₹{{ '%.2f'|format(item.subtotal) }}</div>
+              <div class="text-muted small">₹{{ '%.2f'|format(item.price) }} each</div>
+            </div>
+          </div>
+        </div>
+        <form method="post" action="{{ url_for('remove_from_cart', product_id=item.id) }}">
+          <button class="btn btn-outline-danger btn-sm" type="submit">Remove</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <form method="post" action="{{ url_for('checkout') }}" class="mt-4 text-end">
+      <button class="btn btn-success btn-lg" type="submit">Checkout</button>
+    </form>
+    <div class="mt-3 text-end">
+      <a class="btn btn-outline-light" href="{{ url_for('orders') }}">View order history</a>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h2 class="h4 fw-bold">Your cart is empty.</h2>
+      <p class="mb-0 text-muted">Visit the shop and add fertilizers or pesticides to begin.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
