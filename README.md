@@ -31,6 +31,8 @@ Farmspace is a Flask-based agriculture platform for crop yield prediction, farm 
 - `artifacts/` - Saved ML model artifacts
 - `static/` - CSS and product images
 - `templates/` - HTML templates
+## uv install 
+- powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ## Quick Start
 
