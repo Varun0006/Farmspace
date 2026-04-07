@@ -43,7 +43,7 @@ Farmspace is a Flask-based agriculture platform for crop yield prediction, farm 
 2. Train the model and create the artifact:
 
    ```bash
-   uv run python main.py
+   uv run python model.py
    ```
 
 3. Run the Flask app:
